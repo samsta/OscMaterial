@@ -1,0 +1,34 @@
+name: Validate Max for Live templates
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Validate generator behavior
+        run: npm test
+
+      - name: Validate template syntax
+        run: npm run validate:templates
+
+      - name: Validate outer AMXD template
+        run: npm run validate:amxd
+
+      - name: Build and validate example device
+        run: |
+          npm run build:example
+          node tools/validate-amxd.js generated/example-material.amxd
