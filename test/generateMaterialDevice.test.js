@@ -8,6 +8,19 @@ const test = require("node:test");
 test("generates an embedded template device with typed, named parameters", () => {
   const outputDirectory = fs.mkdtempSync(path.join(os.tmpdir(), "osc-material-"));
   const output = path.join(outputDirectory, "example.amxd");
+  const templateContainer = fs.readFileSync(path.join(__dirname, "../max/OscMaterial.amxd"));
+  const templatePayloadOffset =
+    templateContainer.subarray(12, 16).toString("ascii") === "ptch" ? 20 : 32;
+  const templatePayloadLength = templateContainer.readUInt32LE(templatePayloadOffset - 4);
+  const template = JSON.parse(
+    templateContainer
+      .subarray(templatePayloadOffset, templatePayloadOffset + templatePayloadLength)
+      .toString("utf8")
+      .replace(/\0+$/, "")
+  ).patcher;
+  const templatePanel = template.boxes
+    .map(({ box }) => box)
+    .find((box) => box.maxclass === "bpatcher");
 
   try {
     childProcess.execFileSync(
@@ -30,6 +43,8 @@ test("generates an embedded template device with typed, named parameters", () =>
 
     assert.equal(container.subarray(0, 4).toString("ascii"), "ampf");
     assert.equal(panel.embed, 1);
+    assert.deepEqual(panel.presentation_rect, templatePanel.presentation_rect);
+    assert.deepEqual(panel.patching_rect, templatePanel.patching_rect);
     assert.ok(parameters.some((parameter) => parameter.parameter_longname === "/medias/example-material/Motion_X"));
     assert.ok(parameters.some((parameter) => parameter.parameter_longname === "/medias/example-material/Base/Noise"));
     assert.ok(parameters.some((parameter) => parameter.parameter_longname === "/medias/example-material/Base/Invert"));
@@ -40,6 +55,30 @@ test("generates an embedded template device with typed, named parameters", () =>
       Object.values(device.parameters).some((entry) =>
         Array.isArray(entry) && entry[0] === "/medias/example-material/Base/Noise"
       )
+    );
+    const enumMenu = panel.patcher.boxes
+      .map(({ box }) => box)
+      .find((box) =>
+        box.maxclass === "live.menu" &&
+        box.saved_attribute_attributes?.valueof?.parameter_longname === "/medias/example-material/Base/Noise"
+      );
+    const enumPrefix = enumMenu.id.replace(/-obj-\d+$/, "");
+
+    assert.equal(
+      panel.patcher.boxes
+        .map(({ box }) => box)
+        .filter((box) => box.id.startsWith(`${enumPrefix}-`) && !box.id.endsWith("-background"))
+        .length,
+      3
+    );
+    assert.deepEqual(
+      panel.patcher.lines
+        .filter(({ patchline }) => patchline.source[0].startsWith(`${enumPrefix}-`))
+        .map(({ patchline }) => [patchline.source[0], patchline.destination[0]]),
+      [
+        [`${enumPrefix}-obj-2`, `${enumPrefix}-obj-4`],
+        [`${enumPrefix}-obj-4`, "obj-6"]
+      ]
     );
     const backgrounds = panel.patcher.boxes
       .map(({ box }) => box)

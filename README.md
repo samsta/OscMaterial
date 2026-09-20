@@ -27,7 +27,7 @@ The generator reads the leading material JSON comment and composes the supplied 
 | `trigger` | `OscTrigger.maxsnip` |
 | `color` | `OscColor.maxsnip` |
 
-Each generated panel retains the supplied reset trigger. A color input generates hue, saturation, value, and alpha float controls beneath its label path, initialized by converting the material's RGBA default to HSVA. Other unsupported input types are skipped and reported by the generator. Enum labels are shown in Live while their declared numeric `VALUES` are sent over OSC.
+Each generated panel retains the supplied reset trigger. A color input generates hue, saturation, value, and alpha float controls beneath its label path, initialized by converting the material's RGBA default to HSVA. Other unsupported input types are skipped and reported by the generator. Enum controls preserve the supplied `OscEnum.maxsnip` behavior and emit its Live menu index.
 
 OSC routes derive from `LABEL`, not shader `NAME`, so `{"LABEL": "Base/Invert", "NAME": "mat_inv"}` sends to `/medias/<material>/Base/Invert`. Label hierarchy is retained; spaces and other unsafe characters within individual path segments are normalized to `_`.
 

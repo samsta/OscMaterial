@@ -297,46 +297,6 @@ function rewriteSnippet(snippet, prefix, yOffset, input) {
     patchline.destination[0] = idMap.get(patchline.destination[0]);
   }
 
-  if (input.kind === "enum") {
-    const menu = patcher.boxes.find(({ box }) => box.maxclass === "live.menu").box;
-    const prependId = prependIds[0];
-    const selectorId = `${prefix}-enum-selector`;
-
-    patcher.lines = patcher.lines.filter(({ patchline }) => !(
-      patchline.source[0] === menu.id && patchline.destination[0] === prependId
-    ));
-    patcher.boxes.push({
-      box: {
-        id: selectorId,
-        maxclass: "newobj",
-        numinlets: 1,
-        numoutlets: input.values.length,
-        patching_rect: [270, yOffset, 120, 22],
-        text: `select ${input.values.map((_, index) => index).join(" ")}`
-      }
-    });
-    patcher.lines.push({
-      patchline: { source: [menu.id, 0], destination: [selectorId, 0] }
-    });
-    input.values.forEach((value, index) => {
-      const valueId = `${prefix}-enum-value-${index}`;
-      patcher.boxes.push({
-        box: {
-          id: valueId,
-          maxclass: "message",
-          numinlets: 2,
-          numoutlets: 1,
-          patching_rect: [400, yOffset + index * 24, 70, 22],
-          text: String(value)
-        }
-      });
-      patcher.lines.push(
-        { patchline: { source: [selectorId, index], destination: [valueId, 0] } },
-        { patchline: { source: [valueId, 0], destination: [prependId, 0] } }
-      );
-    });
-  }
-
   return { boxes: patcher.boxes, lines: patcher.lines, prependIds, height: patcher.openrect[3] };
 }
 
@@ -426,8 +386,6 @@ panelBox.patcher = panelPatcher;
 panelBox.enablehscroll = 0;
 panelBox.enablevscroll = 1;
 panelBox.lockeddragscroll = 0;
-panelBox.presentation_rect[2] = 398;
-panelBox.presentation_rect[3] = 131;
 outer.lines = outer.lines.filter(({ patchline }) => !(
   patchline.source[0] === panelBox.id || patchline.destination[0] === panelBox.id
 ));
