@@ -78,6 +78,8 @@
 , 			{
 				"box" : 				{
 					"id" : "obj-7",
+					"annotation" : "OSC range: 0 to 1",
+					"jspainterfile" : "OscMaterialSlider.js",
 					"maxclass" : "live.slider",
 					"numinlets" : 1,
 					"numoutlets" : 2,
@@ -127,6 +129,8 @@
 , 			{
 				"box" : 				{
 					"id" : "obj-6",
+					"annotation" : "OSC range: 0 to 1",
+					"jspainterfile" : "OscMaterialSlider.js",
 					"maxclass" : "live.slider",
 					"numinlets" : 1,
 					"numoutlets" : 2,
@@ -176,6 +180,8 @@
 , 			{
 				"box" : 				{
 					"id" : "obj-5",
+					"annotation" : "OSC range: 0 to 1",
+					"jspainterfile" : "OscMaterialSlider.js",
 					"maxclass" : "live.slider",
 					"numinlets" : 1,
 					"numoutlets" : 2,
@@ -225,6 +231,8 @@
 , 			{
 				"box" : 				{
 					"id" : "obj-3",
+					"annotation" : "OSC range: 0 to 1",
+					"jspainterfile" : "OscMaterialSlider.js",
 					"maxclass" : "live.slider",
 					"numinlets" : 1,
 					"numoutlets" : 2,
@@ -273,7 +281,40 @@
 			}
 , 			{
 				"box" : 				{
-					"id" : "obj-34",
+		"id" : "obj-35",
+		"maxclass" : "newobj",
+		"numinlets" : 1,
+		"numoutlets" : 0,
+		"patching_rect" : [ 328.5, 90.0, 234.0, 22.0 ],
+		"text" : "js OscMaterialColorRefresh.js /medias/material/param saturation value alpha"
+	}
+
+			}
+, 			{
+	"box" : 				{
+		"id" : "obj-36",
+		"maxclass" : "newobj",
+		"numinlets" : 1,
+		"numoutlets" : 0,
+		"patching_rect" : [ 328.5, 105.0, 198.0, 22.0 ],
+		"text" : "js OscMaterialColorRefresh.js /medias/material/param value alpha"
+	}
+
+			}
+, 			{
+	"box" : 				{
+		"id" : "obj-37",
+		"maxclass" : "newobj",
+		"numinlets" : 1,
+		"numoutlets" : 0,
+		"patching_rect" : [ 328.5, 120.0, 167.0, 22.0 ],
+		"text" : "js OscMaterialColorRefresh.js /medias/material/param alpha"
+	}
+
+}
+, 			{
+	"box" : 				{
+		"id" : "obj-34",
 					"maxclass" : "newobj",
 					"numinlets" : 1,
 					"numoutlets" : 1,
@@ -286,7 +327,28 @@
  ],
 		"lines" : [ 			{
 				"patchline" : 				{
-					"destination" : [ "obj-34", 0 ],
+				"destination" : [ "obj-37", 0 ],
+				"source" : [ "obj-6", 0 ]
+			}
+
+		}
+, 			{
+			"patchline" : 				{
+				"destination" : [ "obj-36", 0 ],
+				"source" : [ "obj-5", 0 ]
+			}
+
+		}
+, 			{
+			"patchline" : 				{
+				"destination" : [ "obj-35", 0 ],
+				"source" : [ "obj-3", 0 ]
+			}
+
+		}
+, 			{
+			"patchline" : 				{
+				"destination" : [ "obj-34", 0 ],
 					"source" : [ "obj-3", 0 ]
 				}
 

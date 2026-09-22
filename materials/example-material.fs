@@ -4,7 +4,7 @@
     "TAGS": "template",
     "VSN": "1.0",
     "INPUTS": [ 
-		{"LABEL": "Motion X", "NAME": "mat_motion_x", "TYPE": "float", "MIN": -5, "MAX": 5, "DEFAULT": 0.01},
+		{"LABEL": "Motion X", "NAME": "mat_motion_x", "TYPE": "float", "MIN": -3, "MAX": 7, "DEFAULT": 0.01},
 		{"LABEL": "Motion Y", "NAME": "mat_motion_y", "TYPE": "float", "MIN": -5, "MAX": 5, "DEFAULT": 0.01},
 		{"LABEL": "Scale", "NAME": "mat_scale", "TYPE": "float", "MIN": 1.0, "MAX": 50.0, "DEFAULT": 1.0 }, 
 		{"LABEL": "Threshold", "NAME": "mat_thres", "TYPE": "float", "MIN": -1.0, "MAX": 1.0, "DEFAULT": 0.0 }, 

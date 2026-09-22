@@ -5,6 +5,8 @@ const path = require("node:path");
 
 const ROOT = path.resolve(__dirname, "..");
 const MAX_DIR = path.join(ROOT, "max");
+const PAINTER_FILE = "OscMaterialSlider.js";
+const COLOR_REFRESH_FILE = "OscMaterialColorRefresh.js";
 const [materialPath, outputPath] = process.argv.slice(2);
 
 if (!materialPath) {
@@ -70,6 +72,19 @@ function fileStem(file) {
   return path.basename(file, path.extname(file));
 }
 
+function findThumbnail(materialDirectory) {
+  for (const filename of ["thumbnail.jpg", "thumbnail.png"]) {
+    const candidate = path.join(materialDirectory, filename);
+
+    if (fs.existsSync(candidate)) {
+      return candidate;
+    }
+  }
+  throw new Error(
+    `No thumbnail found beside the material. Expected ${path.join(materialDirectory, "thumbnail.jpg")} or thumbnail.png.`
+  );
+}
+
 function safeSegment(value, fallback) {
   return String(value || "")
     .trim()
@@ -113,6 +128,34 @@ function colorToHsv(color) {
     value: maximum,
     alpha: Number.isFinite(alpha) ? alpha : 1
   };
+}
+
+function hsvToRgb(hue, saturation, value) {
+  const sector = Math.floor(hue * 6);
+  const fraction = hue * 6 - sector;
+  const p = value * (1 - saturation);
+  const q = value * (1 - fraction * saturation);
+  const t = value * (1 - (1 - fraction) * saturation);
+  const components = [
+    [value, t, p],
+    [q, value, p],
+    [p, value, t],
+    [p, q, value],
+    [t, p, value],
+    [value, p, q]
+  ];
+
+  return components[sector % 6];
+}
+
+function colorGradientFor(component, defaults) {
+  if (component === "saturation") {
+    return hsvToRgb(defaults.hue, 1, 1);
+  }
+  if (component === "value") {
+    return hsvToRgb(defaults.hue, defaults.saturation, 1);
+  }
+  return hsvToRgb(defaults.hue, defaults.saturation, defaults.value);
 }
 
 function parseMaterial(file) {
@@ -273,13 +316,19 @@ function rewriteSnippet(snippet, prefix, yOffset, input) {
         valueof.parameter_type = 0;
         valueof.parameter_mmin = input.kind === "color" ? 0 : input.minimum;
         valueof.parameter_mmax = input.kind === "color" ? 1 : input.maximum;
+        box.annotation = `OSC range: ${valueof.parameter_mmin} to ${valueof.parameter_mmax}`;
         if (componentMatch) {
           valueof.parameter_initial = [input.colorDefaults[componentMatch[1]]];
+          box.annotation += `; color-gradient: ${colorGradientFor(
+            componentMatch[1],
+            input.colorDefaults
+          ).map((component) => Number(component.toFixed(6))).join(",")}`;
         }
       } else if (input.kind === "int") {
         valueof.parameter_type = 1;
         valueof.parameter_mmin = input.minimum;
         valueof.parameter_mmax = input.maximum;
+        box.annotation = `OSC range: ${valueof.parameter_mmin} to ${valueof.parameter_mmax}`;
       } else if (input.kind === "enum") {
         valueof.parameter_type = 2;
         valueof.parameter_mmin = 0;
@@ -315,10 +364,16 @@ function snippetFor(input, templates) {
 
 const sourcePath = path.resolve(materialPath);
 const material = parseMaterial(sourcePath);
+const materialDirectory = path.dirname(sourcePath);
+const thumbnailPath = findThumbnail(materialDirectory);
+const thumbnailName = path.basename(thumbnailPath);
 const destination = path.resolve(
-  outputPath || path.join(ROOT, "generated", `${material.materialSegment}.amxd`)
+  outputPath || path.join(materialDirectory, `${material.materialSegment}.amxd`)
 );
 const destinationSource = destination.replace(/\.amxd$/i, ".maxpat");
+const destinationPainter = path.join(path.dirname(destination), PAINTER_FILE);
+const destinationColorRefresh = path.join(path.dirname(destination), COLOR_REFRESH_FILE);
+const destinationThumbnail = path.join(path.dirname(destination), thumbnailName);
 const templates = {
   float: readJson(path.join(MAX_DIR, "OscFloat.maxsnip")),
   int: readJson(path.join(MAX_DIR, "OscInt.maxsnip")),
@@ -380,6 +435,14 @@ panelPatcher.title = `${material.materialName} parameters`;
 
 const outer = device.patcher;
 const panelBox = outer.boxes.find(({ box }) => box.maxclass === "bpatcher").box;
+const thumbnailBox = outer.boxes.find(({ box }) => box.maxclass === "fpic")?.box;
+
+if (!thumbnailBox) {
+  throw new Error("The outer AMXD template must contain an fpic box for the material thumbnail.");
+}
+
+thumbnailBox.pic = thumbnailName;
+thumbnailBox.autofit = 1;
 panelBox.embed = 1;
 panelBox.name = "OscParamPanel.maxpat";
 panelBox.patcher = panelPatcher;
@@ -433,7 +496,19 @@ panelPatcher.boxes
 
 fs.mkdirSync(path.dirname(destination), { recursive: true });
 fs.writeFileSync(destinationSource, `${JSON.stringify(device, null, 2)}\n`);
+if (path.resolve(destinationPainter) !== path.join(MAX_DIR, PAINTER_FILE)) {
+  fs.copyFileSync(path.join(MAX_DIR, PAINTER_FILE), destinationPainter);
+}
+if (path.resolve(destinationColorRefresh) !== path.join(MAX_DIR, COLOR_REFRESH_FILE)) {
+  fs.copyFileSync(path.join(MAX_DIR, COLOR_REFRESH_FILE), destinationColorRefresh);
+}
+if (path.resolve(destinationThumbnail) !== thumbnailPath) {
+  fs.copyFileSync(thumbnailPath, destinationThumbnail);
+}
 writeAmpf(destination, device, outerTemplate.format);
 
 console.log(`Generated ${path.relative(process.cwd(), destination)} from templates.`);
+console.log(`Wrote ${path.relative(process.cwd(), destinationPainter)} for custom slider rendering.`);
+console.log(`Wrote ${path.relative(process.cwd(), destinationColorRefresh)} for live color gradient updates.`);
+console.log(`Configured ${thumbnailName} as the device thumbnail.`);
 console.log(`Embedded ${material.inputs.length} inputs plus reset; skipped ${material.skipped.length}.`);

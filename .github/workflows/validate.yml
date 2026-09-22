@@ -31,4 +31,4 @@ jobs:
       - name: Build and validate example device
         run: |
           npm run build:example
-          node tools/validate-amxd.js generated/example-material.amxd
+          node tools/validate-amxd.js materials/example-material.amxd

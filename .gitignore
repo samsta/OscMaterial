@@ -1,3 +1,6 @@
 .DS_Store
 node_modules/
-generated/
+materials/*.amxd
+materials/*.maxpat
+materials/OscMaterialSlider.js
+materials/OscMaterialColorRefresh.js

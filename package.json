@@ -4,10 +4,10 @@
   "private": true,
   "description": "Max for Live controls for MadMapper material shaders",
   "scripts": {
-    "build:example": "node tools/generate-material-device.js materials/example-material.fs generated/example-material.amxd",
+    "build:example": "node tools/generate-material-device.js materials/example-material.fs",
     "generate:material": "node tools/generate-material-device.js",
     "test": "node --test test/generateMaterialDevice.test.js",
-    "validate:templates": "node --check tools/generate-material-device.js && node -e \"for (const f of ['max/OscParamPanel.maxpat','max/OscColor.maxsnip','max/OscEnum.maxsnip','max/OscFloat.maxsnip','max/OscInt.maxsnip','max/OscToggle.maxsnip','max/OscTrigger.maxsnip']) JSON.parse(require('node:fs').readFileSync(f, 'utf8')); console.log('Templates are valid JSON')\"",
+    "validate:templates": "node --check tools/generate-material-device.js && node --check max/OscMaterialSlider.js && node --check max/OscMaterialColorRefresh.js && node -e \"for (const f of ['max/OscParamPanel.maxpat','max/OscColor.maxsnip','max/OscEnum.maxsnip','max/OscFloat.maxsnip','max/OscInt.maxsnip','max/OscToggle.maxsnip','max/OscTrigger.maxsnip']) JSON.parse(require('node:fs').readFileSync(f, 'utf8')); console.log('Templates are valid JSON')\"",
     "validate:amxd": "node tools/validate-amxd.js max/OscMaterial.amxd"
   }
 }
