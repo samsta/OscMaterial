@@ -6,7 +6,7 @@ Generate a material-specific Max for Live device from a MadMapper `.fs` file. Ev
 npm run generate:material -- /absolute/path/to/material.fs
 ```
 
-The resulting device is written beside the source material as `<material>.amxd`, alongside its editable `.maxpat` source, `OscMaterialSlider.js` painter, and `OscMaterialColorRefresh.js` helper. Keep the AMXD, JavaScript files, and thumbnail together in the material folder when deploying the device, then drag the `.amxd` onto a Live track. It registers each control with its exact OSC name at device-load time, following the template convention:
+The resulting device is written beside the source material as `<material>.amxd`, alongside `OscMaterialSlider.js`, `OscMaterialColorRefresh.js`, and the thumbnail. Keep the AMXD, JavaScript files, and thumbnail together in the material folder when deploying the device, then drag the `.amxd` onto a Live track. It registers each control with its exact OSC name at device-load time, following the template convention:
 
 ```text
 /medias/<material-name>/<input-name>
@@ -39,7 +39,7 @@ Float, integer, and color controls remain native `live.slider` objects for Live 
 
 The outer template's host and port controls remain unchanged. Generated panel messages connect directly to the outer template's `udpsend` object, following the supplied template design.
 
-The panel itself is embedded in the generated AMXD (`bpatcher.embed = 1`), so it has no dependency on `OscParamPanel.maxpat` or the snippets after generation. The material thumbnail, `OscMaterialSlider.js`, and `OscMaterialColorRefresh.js` remain external runtime assets required beside the generated AMXD.
+The panel itself is embedded in the generated AMXD (`bpatcher.embed = 1`), so it has no dependency on `OscParamPanel.maxpat` or the snippets after generation. The generator does not write a material-specific `.maxpat`; the source templates remain in the repository for regeneration and editing. The material thumbnail, `OscMaterialSlider.js`, and `OscMaterialColorRefresh.js` remain external runtime assets required beside the generated AMXD.
 
 ## Validation
 

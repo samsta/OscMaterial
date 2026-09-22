@@ -39,6 +39,7 @@ test("generates an embedded template device with typed, named parameters", () =>
     const panel = device.boxes.map(({ box }) => box).find((box) => box.maxclass === "bpatcher");
     const painter = path.join(outputDirectory, "OscMaterialSlider.js");
     const colorRefreshPath = path.join(outputDirectory, "OscMaterialColorRefresh.js");
+    const generatedSource = path.join(outputDirectory, "example.maxpat");
     const thumbnail = path.join(outputDirectory, "thumbnail.jpg");
     const thumbnailBox = device.boxes.map(({ box }) => box).find((box) => box.maxclass === "fpic");
     const parameters = panel.patcher.boxes
@@ -53,6 +54,7 @@ test("generates an embedded template device with typed, named parameters", () =>
       fs.readFileSync(colorRefreshPath, "utf8"),
       fs.readFileSync("max/OscMaterialColorRefresh.js", "utf8")
     );
+    assert.equal(fs.existsSync(generatedSource), false);
     assert.deepEqual(fs.readFileSync(thumbnail), fs.readFileSync("materials/thumbnail.jpg"));
     assert.equal(thumbnailBox.pic, "thumbnail.jpg");
     assert.equal(thumbnailBox.autofit, 1);

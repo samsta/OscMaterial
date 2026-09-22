@@ -370,7 +370,6 @@ const thumbnailName = path.basename(thumbnailPath);
 const destination = path.resolve(
   outputPath || path.join(materialDirectory, `${material.materialSegment}.amxd`)
 );
-const destinationSource = destination.replace(/\.amxd$/i, ".maxpat");
 const destinationPainter = path.join(path.dirname(destination), PAINTER_FILE);
 const destinationColorRefresh = path.join(path.dirname(destination), COLOR_REFRESH_FILE);
 const destinationThumbnail = path.join(path.dirname(destination), thumbnailName);
@@ -495,7 +494,6 @@ panelPatcher.boxes
   });
 
 fs.mkdirSync(path.dirname(destination), { recursive: true });
-fs.writeFileSync(destinationSource, `${JSON.stringify(device, null, 2)}\n`);
 if (path.resolve(destinationPainter) !== path.join(MAX_DIR, PAINTER_FILE)) {
   fs.copyFileSync(path.join(MAX_DIR, PAINTER_FILE), destinationPainter);
 }
